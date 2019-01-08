@@ -1,9 +1,18 @@
 FROM busybox
 MAINTAINER Nikolay
 
-ADD index.html /www/index.html
+ARG build_expose_port=8000
+ENV env_expose_port=$build_expose_port
 
-EXPOSE 8000
+WORKDIR /www
+
+RUN echo "<xmp>" > /www/index.html
+RUN echo "Hello World" >> /www/index.html
+RUN echo "I'm on port $env_expose_port" >> /www/index.html
+
+#ADD index.html /www/index.html
+
+EXPOSE $env_expose_port
 
 # Create a basic webserver and run it until the container is stopped 
-CMD trap "exit 0;" TERM INT; httpd -p 8000 -h /www -f & wait
+CMD trap "exit 0;" TERM INT; date >> /www/index.html; echo "</xmp>" >> /www/index.html; httpd -p $env_expose_port -h /www -f & wait
